@@ -15,8 +15,6 @@ class MongoDBBasicAdapter extends Adapter {
       });
   }
 
-  // UPSERT()
-
   READ(done) {
     var start = Date.now();
 
