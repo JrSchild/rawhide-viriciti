@@ -1,0 +1,9 @@
+{
+  "name": "rawhide-test-case",
+  "version": "0.0.0",
+  "author": "",
+  "description": "",
+  "scripts": {
+    "postinstall": "rawhide link"
+  }
+}
