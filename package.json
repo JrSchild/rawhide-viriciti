@@ -5,5 +5,9 @@
   "description": "",
   "scripts": {
     "postinstall": "rawhide link"
+  },
+  "dependencies": {
+    "bluebird": "^2.10.2",
+    "moment": "^2.10.6"
   }
 }

@@ -7,7 +7,7 @@
   "threads": [
     {
       "workload": "BasicWorkload",
-      "model": "BasicModel",
+      "model": "SimpleNestedMapModel",
       "tableName": "table",
       "fieldCount": 10,
       "multiply": 4,
