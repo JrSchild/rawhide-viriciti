@@ -1,29 +1,27 @@
 'use strict'
 
 var Model = require('rawhide/core/Model');
-var moment = require('moment');
+var utils = require('../lib/utils');
 
 const ADAPTERS = {
   MongoDB: 'MongoDBSimpleNestedMapAdapter'
 };
 
+const options = {
+  format: 'index',
+  minutes: 2,
+  seconds: 5
+};
+
 class SimpleNestedMapModel extends Model {
   WRITE(data, done) {
-    var query = {};
+    var times = utils.splitTime(data.t, options);
+    var query = {
+      _id: times.hour
+    };
     var update = {};
 
-    var time = data.t;
-    var startOfHour = +moment(time).startOf('hour');
-    var startOfMinute = +moment(time).startOf('minute');
-    var startOfSecond = +moment(time).startOf('second');
-
-    var hour = startOfHour;
-    var minute = Math.floor(Math.abs (startOfMinute - hour) / 60000 / 2) * 60000 * 2;
-    var second = Math.floor(Math.abs (startOfSecond - hour - minute) / 1000 / 5) * 1000 * 5;
-    var millisecond = time - hour - minute - second;
-
-    query._id = hour;
-    update['$set'] = {[`values.${minute}.values.${second}.values.${millisecond}`]: data.v};
+    update['$set'] = {[`values.${times.minutes}.values.${times.seconds}.values.${times.milliseconds}`]: data.v};
 
     this.adapter.UPDATE(this.parameters.thread.tableName, query, update, done);
   }
