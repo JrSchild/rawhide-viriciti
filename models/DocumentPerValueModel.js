@@ -6,7 +6,7 @@ const ADAPTERS = {
   MongoDB: 'MongoDBBasicAdapter'
 };
 
-class BasicModel extends Model {
+class DocumentPerValueModel extends Model {
   WRITE(data, done) {
     this.adapter.WRITE(data, done);
   }
@@ -16,5 +16,5 @@ class BasicModel extends Model {
   }
 }
 
-module.exports = BasicModel;
+module.exports = DocumentPerValueModel;
 module.exports.ADAPTERS = ADAPTERS;
