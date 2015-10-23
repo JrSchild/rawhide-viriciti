@@ -2,6 +2,7 @@
 
 var Promise = require('bluebird');
 var Adapter = require('rawhide/core/Adapter');
+var _ = require('lodash');
 
 class MongoDBSimpleNestedMapAdapter extends Adapter {
   constructor(model) {
@@ -15,12 +16,40 @@ class MongoDBSimpleNestedMapAdapter extends Adapter {
     var start = Date.now();
 
     this.getParameterCollection(collectionName)
-      .then((collection) => collection.updateOne(query, update, { upsert: true }))
-      .then(() => {
+      .then((collection) => collection.updateOne(query, update))
+      .then((result) => {
+        if (!result.matchedCount) {
+          return this.initializeDocument(collectionName, query)
+            .then(() => this.UPDATE(collectionName, query, update, done));
+        }
         this.model.setLatency(Date.now() - start);
         done();
       })
       .catch(done);
+  }
+
+  initializeDocument(collectionName, query) {
+    var promiseName = `initializing${collectionName}`;
+
+    // Return cached promise if exists.
+    if (this[promiseName]) {
+      return this[promiseName];
+    }
+
+    var documentModel = this.model.getDocumentModel();
+
+    this[promiseName] = this.getParameterCollection(collectionName)
+      .then((collection) => collection.updateOne(query, documentModel, {upsert: true}))
+      .catch((err) => {
+        // Error code 11000 is duplicate key, that's okay because
+        // it was done by another thread. Throw error otherwise.
+        if (err.code !== 11000) throw err;
+      })
+
+    // Delete the promise when it's finished.
+    this[promiseName].finally(() => delete this[promiseName]);
+
+    return this[promiseName];
   }
 
   getParameterCollection(collectionName) {
