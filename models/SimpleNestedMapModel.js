@@ -7,14 +7,10 @@ const ADAPTERS = {
   MongoDB: 'MongoDBSimpleNestedMapAdapter'
 };
 
-const options = {
-  intervals: [
-    ['minutes', 120000],
-    ['seconds', 5000]
-  ],
-  start: 'hours',
-  end: 'milliseconds'
-};
+const options = [
+  ['minutes', 120000],
+  ['seconds', 5000]
+];
 
 class SimpleNestedMapModel extends Model {
   WRITE(data, done) {
