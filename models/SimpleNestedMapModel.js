@@ -8,20 +8,23 @@ const ADAPTERS = {
 };
 
 const options = {
-  format: 'index',
-  minutes: 2,
-  seconds: 5
+  intervals: [
+    ['minutes', 120000],
+    ['seconds', 5000]
+  ],
+  start: 'hours',
+  end: 'milliseconds'
 };
 
 class SimpleNestedMapModel extends Model {
   WRITE(data, done) {
     var times = utils.splitTime(data.t, options);
     var query = {
-      _id: times.hour
+      _id: times.hours
     };
     var update = {};
 
-    update['$set'] = {[`values.${times.minutes}.values.${times.seconds}.values.${times.milliseconds}`]: data.v};
+    update['$set'] = {[`values.${times.minutes.v}.values.${times.seconds.v}.values.${times.milliseconds}`]: data.v};
 
     this.adapter.UPDATE(this.parameters.thread.tableName, query, update, done);
   }
