@@ -1,8 +1,7 @@
 'use strict'
 
-var Model = require('rawhide/core/Model');
+var BaseModel = require('./BaseModel');
 var utils = require('../lib/utils');
-var _ = require('lodash');
 
 const ADAPTERS = {
   MongoDB: 'MongoDBSimpleNestedMapAdapter'
@@ -13,7 +12,7 @@ const options = [
   ['seconds', 5000]
 ];
 
-class SimpleNestedArrayModel extends Model {
+class SimpleNestedArrayModel extends BaseModel {
   WRITE(data, done) {
     var times = utils.splitTime(data.t, options);
     var query = {
@@ -33,18 +32,7 @@ class SimpleNestedArrayModel extends Model {
   }
 
   getDocumentModel() {
-    return makeValues(30, 24, {});
-
-    function makeValues() {
-      var args = Array.prototype.slice.call(arguments);
-      var length = args.shift();
-
-      if (!_.isNumber(length)) return _.clone(length);
-
-      return {
-        values: _.map(Array(length), () => makeValues.apply(this, args))
-      };
-    }
+    return BaseModel.makeValues(30, 24, {});
   }
 }
 

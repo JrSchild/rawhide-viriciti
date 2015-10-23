@@ -1,6 +1,6 @@
 'use strict'
 
-var Model = require('rawhide/core/Model');
+var BaseModel = require('./BaseModel');
 var utils = require('../lib/utils');
 
 const ADAPTERS = {
@@ -12,7 +12,7 @@ const options = [
   ['seconds', 5000]
 ];
 
-class SimpleNestedMapModel extends Model {
+class SimpleNestedMapModel extends BaseModel {
   WRITE(data, done) {
     var times = utils.splitTime(data.t, options);
     var query = {
@@ -27,10 +27,6 @@ class SimpleNestedMapModel extends Model {
 
   READ(done) {
     this.adapter.READ(done);
-  }
-
-  getDocumentModel() {
-    return {};
   }
 }
 
