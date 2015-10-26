@@ -32,7 +32,7 @@ class SimpleNestedArrayModel extends BaseModel {
   }
 
   getDocumentModel() {
-    return BaseModel.makeValues(30, 24, {});
+    return util.makeValues(30, 24, {});
   }
 }
 

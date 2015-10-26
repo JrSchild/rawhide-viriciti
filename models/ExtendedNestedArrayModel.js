@@ -53,7 +53,7 @@ class ExtendedNestedArrayModel extends BaseModel {
   }
 
   getDocumentModel() {
-    return BaseModel.makeValues(30, 24, {});
+    return utils.makeValues(30, 24, {});
   }
 }
 
