@@ -1,8 +1,16 @@
 {
-  "name": "rawhide-test-case",
-  "version": "0.0.0",
-  "author": "",
-  "description": "",
+  "name": "rawhide-viriciti",
+  "version": "0.0.1",
+  "author": "Joram Ruitenschild",
+  "description": "A set of tests for the rawhide testing framework.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JrSchild/rawhide-viriciti.git"
+  },
+  "engines": {
+    "node": ">=4.1"
+  },
+  "license": "ISC",
   "scripts": {
     "postinstall": "rawhide link"
   },
