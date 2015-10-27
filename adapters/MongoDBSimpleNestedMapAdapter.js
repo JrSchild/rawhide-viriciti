@@ -22,7 +22,7 @@ class MongoDBSimpleNestedMapAdapter extends Adapter {
           return this.initializeDocument(collectionName, query)
             .then(() => this.UPDATE(collectionName, query, update, done));
         }
-        this.model.setLatency(Date.now() - start);
+        this.model.setLatency(start, Date.now());
         done();
       })
       .catch(done);
@@ -77,7 +77,7 @@ class MongoDBSimpleNestedMapAdapter extends Adapter {
 
     cursor.nextObject((err, res) => {
       cursor.close()
-      this.model.setLatency(Date.now() - start);
+      this.model.setLatency(start, Date.now());
       done(err);
     });
   }
