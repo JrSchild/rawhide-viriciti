@@ -40,11 +40,10 @@ class MongoDBSimpleNestedMapAdapter extends Adapter {
 
     this[promiseName] = this.getParameterCollection(collectionName)
       .then((collection) => collection.updateOne(query, documentModel, {upsert: true}))
-      .catch((err) => {
-        // Error code 11000 is duplicate key, that's okay because
-        // it was done by another thread. Throw error otherwise.
-        if (err.code !== 11000) throw err;
-      })
+
+      // Error code 11000 is duplicate key, that's okay because
+      // it was done by another thread. Ignore these errors.
+      .catch({code: 11000}, () => {});
 
     // Delete the promise when it's finished.
     this[promiseName].finally(() => delete this[promiseName]);
@@ -57,7 +56,7 @@ class MongoDBSimpleNestedMapAdapter extends Adapter {
       return Promise.resolve(this.collections[collectionName]);
     }
 
-    return Promise.fromNode(this.db.collection.bind(this.db, collectionName, {strict: true}))
+    return Promise.fromCallback(this.db.collection.bind(this.db, collectionName, {strict: true}))
       .catch(() => this.db.createCollection(collectionName).catch((err) => {
 
         // If status code is 48, it means it was created by another thread while this code was run.

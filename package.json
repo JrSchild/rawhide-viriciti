@@ -15,7 +15,7 @@
     "postinstall": "rawhide link"
   },
   "dependencies": {
-    "bluebird": "^2.10.2",
+    "bluebird": "^3.0.1",
     "lodash": "^3.10.1",
     "moment": "^2.10.6"
   }
