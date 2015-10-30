@@ -2,12 +2,12 @@
   "database": "MongoDB",
   "loadRecords": 1e5,
   "cleanupAutomatically": false,
-  "skipLoadingPhase": true,
-  "loadType": "maxFullBlaf",
+  "pushOperations": 100000,
+  "pushCycles": 5,
   "threads": [
     {
       "workload": "BasicWorkload",
-      "model": "SimpleNestedMapModel",
+      "model": "DocumentPerValueModel",
       "tableName": "table",
       "fieldCount": 10,
       "multiply": 4,
