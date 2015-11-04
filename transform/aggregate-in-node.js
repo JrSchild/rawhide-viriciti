@@ -51,19 +51,23 @@ function start(db) {
           documents[times.hours]._id = times.hours;
         }
 
+        documents[times.hours].options = options;
         documents[times.hours].values[times.minutes.i].values[times.seconds.i].values.push({
           m: times.milliseconds,
           v: result[i].v
         });
       }
 
-      // Sort everything.
+      // Accumulate data for easier processing/querying and
+      // make sure the final arrays are sorted.
       _.each(documents, (doc) => {
         doc.values.forEach((minutes) => {
           var minSum = 0, minCount = 0, minMin = null, minMax = null;
 
           minutes.values.forEach((seconds) => {
-            // seconds.values.sort((a, b) => a.m > b.m); // Doesn't work for some reason...
+
+            // Add some sorting obscurity.
+            seconds.values = seconds.values.sort((a, b) => a.m > b.m ? 1 : a.m < b.m ? -1 : 0);
 
             var secSum = 0, secCount = 0, secMin = null, secMax = null;
             seconds.values.forEach((d) => {
