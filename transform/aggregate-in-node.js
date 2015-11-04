@@ -5,6 +5,7 @@
  */
 var Adapter = require('rawhide/core/Adapter');
 var utils = require('../lib/utils');
+var _ = require('lodash');
 
 const options = [
   ['minutes', 120000],
@@ -28,7 +29,7 @@ function start(db) {
 
   var begin = Date.now();
   var start = begin;
-  var newDocument = utils.getDocumentModel(options);
+  var documents = {};
 
   console.log('Start retrieving everything');
   cursor.toArray()
@@ -36,23 +37,65 @@ function start(db) {
       var times;
 
       console.log(`Found all in ${Date.now() - start}ms.`);
-      console.log(`First record: ${result[0]}`);
-      console.log(`Last record: ${result[result.length - 1]}`);
-     
+      console.log(`First record: ${JSON.stringify(result[0])}`);
+      console.log(`Last record: ${JSON.stringify(result[result.length - 1])}`);
+
       console.log('Start aggregating');
       start = Date.now();
-      newDocument._id = utils.splitTime(result[0], options).hours;
 
       for (var i = 0, l = result.length; i < l; i++) {
         times = utils.splitTime(result[i]._id, options);
-        newDocument.values[times.minutes.i].values[times.seconds.i][times.milliseconds] = result[i].v
+
+        if (!documents[times.hours]) {
+          documents[times.hours] = utils.getDocumentModel(options, {values: []});
+          documents[times.hours]._id = times.hours;
+        }
+
+        documents[times.hours].values[times.minutes.i].values[times.seconds.i].values.push({
+          m: times.milliseconds,
+          v: result[i].v
+        });
       }
+
+      // Sort everything.
+      _.each(documents, (doc) => {
+        doc.values.forEach((minutes) => {
+          var minSum = 0, minCount = 0, minMin = null, minMax = null;
+
+          minutes.values.forEach((seconds) => {
+            // seconds.values.sort((a, b) => a.m > b.m); // Doesn't work for some reason...
+
+            var secSum = 0, secCount = 0, secMin = null, secMax = null;
+            seconds.values.forEach((d) => {
+              secSum += (d.v || 0);
+              secCount++;
+              secMin = secMin === null ? d.v : Math.min(secMin, d.v);
+              secMax = secMax === null ? d.v : Math.max(secMax, d.v);
+            });
+            seconds.sum = secSum;
+            seconds.count = secCount;
+            seconds.min = secMin;
+            seconds.max = secMax;
+
+            minSum += seconds.sum;
+            minCount += seconds.count;
+            minMin = minMin === null ? secMin : Math.min(minMin, secMin);
+            minMax = minMax === null ? secMax : Math.max(minMax, secMax);
+          });
+
+          minutes.sum = minSum;
+          minutes.count = minCount;
+          minutes.min = minMin;
+          minutes.max = minMax;
+        });
+      });
+
       console.log(`Aggregated data in ${Date.now() - start}ms.`);
 
-      console.log('Inserting new document.');
+      console.log('Inserting documents.');
       start = Date.now();
-      return db.collection(collection)
-        .insertOne(newDocument, (err) => {
+      return db.collection('aggregated-in-node')
+        .insert(_.values(documents), (err) => {
           if (err) {
             throw err;
           }
