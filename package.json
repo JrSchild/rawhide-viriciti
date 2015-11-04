@@ -18,5 +18,8 @@
     "bluebird": "^3.0.2",
     "lodash": "^3.10.1",
     "moment": "^2.10.6"
+  },
+  "devDependencies": {
+    "benchmark": "^1.0.0"
   }
 }
