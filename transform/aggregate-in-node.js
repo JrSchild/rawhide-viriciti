@@ -101,7 +101,8 @@ function start(db) {
           }
 
           console.log(`Done, inserted in: ${Date.now() - start}ms.`);
-          console.log(`Aggregated ${result.length} documents into one in ${Date.now() - begin}ms.`);
+          console.log(`Aggregated ${result.length} documents into ${Object.keys(documents).length} docs in ${Date.now() - begin}ms.`);
+          process.exit();
         });
     })
     .catch(console.error);
