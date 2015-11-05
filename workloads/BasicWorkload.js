@@ -22,7 +22,7 @@ class BasicWorkload extends Workload {
 
   WRITE(done) {
     this.model.WRITE({
-      _id: (current += multiply),
+      t: (current += multiply),
       v: value++
     }, done);
   }

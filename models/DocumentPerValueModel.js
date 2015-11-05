@@ -8,7 +8,10 @@ const ADAPTERS = {
 
 class DocumentPerValueModel extends Model {
   WRITE(data, done) {
-    this.adapter.WRITE(data, done);
+    this.adapter.WRITE({
+      _id: data.t,
+      v: data.v
+    }, done);
   }
 
   READ(done) {
