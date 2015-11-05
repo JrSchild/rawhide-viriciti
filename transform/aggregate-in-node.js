@@ -14,6 +14,7 @@ const options = [
 
 var database = 'pro_vio_sg_101';
 var collection = 'engine~rpm';
+var outputCollection = 'aggregated-in-node';
 
 var adapter = new Adapter({
   parameters: { database: 'MongoDB' }
@@ -100,7 +101,7 @@ function start(db) {
 
       console.log('Inserting documents.');
       start = Date.now();
-      return db.collection('aggregated-in-node')
+      return db.collection(outputCollection)
         .insert(_.values(documents), (err) => {
           if (err) {
             throw err;
