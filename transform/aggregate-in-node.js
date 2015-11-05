@@ -12,13 +12,15 @@ const options = [
   ['seconds', 5000]
 ];
 
+var database = 'pro_vio_sg_101';
+var collection = 'engine~rpm';
+
 var adapter = new Adapter({
   parameters: { database: 'MongoDB' }
 });
-var collection = 'engine~rpm';
 
 adapter.connect({
-  database: 'pro_vio_sg_101'
+  database: database
 })
   .then(() => start(adapter.db))
   .catch(console.error);
