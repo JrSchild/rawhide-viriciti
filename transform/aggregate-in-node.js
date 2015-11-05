@@ -12,8 +12,8 @@ const options = [
   ['seconds', 5000]
 ];
 
-var database = 'pro_vio_sg_101';
-var collection = 'engine~rpm';
+var database = 'my_test_db';
+var collection = 'table';
 var outputCollection = 'aggregated-in-node';
 
 var adapter = new Adapter({
@@ -64,6 +64,8 @@ function start(db) {
       // Accumulate data for easier processing/querying and
       // make sure the final arrays are sorted.
       _.each(documents, (doc) => {
+        var hrSum = 0, hrCount = 0, hrMin = null, hrMax = null;
+
         doc.values.forEach((minutes) => {
           var minSum = 0, minCount = 0, minMin = null, minMax = null;
 
@@ -94,7 +96,17 @@ function start(db) {
           minutes.count = minCount;
           minutes.min = minMin;
           minutes.max = minMax;
+
+          hrSum += minutes.sum;
+          hrCount += minutes.count;
+          hrMin = hrMin === null ? minutes.min : Math.min(hrMin, minutes.min);
+          hrMax = hrMax === null ? minutes.max : Math.max(hrMax, minutes.max);
         });
+
+        doc.sum = hrSum;
+        doc.count = hrCount;
+        doc.min = hrMin;
+        doc.max = hrMax;
       });
 
       console.log(`Aggregated data in ${Date.now() - start}ms.`);
