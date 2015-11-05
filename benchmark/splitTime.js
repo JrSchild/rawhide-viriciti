@@ -7,6 +7,7 @@ var options = [
   ['minutes', 120000],
   ['seconds', 5000]
 ];
+var optionsArr = [3600000, 120000, 5000];
 
 var now = Date.now();
 
@@ -15,9 +16,18 @@ var now = Date.now();
   splitTimeFirst(now, options);
 })
 .add('Second splitTime', () => {
-  splitTimeSecond(now, options);
+  splitTimeTwo(now, options);
 })
-.add('NewerNewer splitTime', () => {
+.add('splitTime with Array', () => {
+  splitTimeArray(now, optionsArr)
+})
+.add('splitTime with Array 2', () => {
+  splitTimeArrayTwo(now, optionsArr)
+})
+.add('splitTime with Array 3', () => {
+  splitTimeArrayThree(now, optionsArr)
+})
+.add('Current splitTime', () => {
   utils.splitTime(now, options);
 })
 .on('cycle', (event) => console.log(`${event.target}`))
@@ -54,7 +64,7 @@ function splitTimeFirst(time, options) {
   return result;
 };
 
-function splitTimeSecond(time, options) {
+function splitTimeTwo(time, options) {
   var duration = time % 3600000;
   var result = {
     hours: time - duration
@@ -77,6 +87,54 @@ function splitTimeSecond(time, options) {
 
   // Set the leftover time on the object.
   result.milliseconds = duration;
+
+  return result;
+}
+
+function splitTimeArray(time, options) {
+  var duration = time % options[0];
+  var result = [time - duration];
+  var index;
+
+  for (var i = 1, l = options.length; i < l; i++) {
+    index = ~~(duration / options[i]);
+    result.push([index, index * options[i]]);
+    duration -= result[i][1];
+  }
+  result.push(duration);
+
+  return result;
+}
+
+function splitTimeArrayTwo(time, options) {
+  var duration = time % options[0];
+  var result = [time - duration];
+  var index;
+
+  var i = 1, l = options.length;
+  for (; i < l; i++) {
+    index = ~~(duration / options[i]);
+    result[i] = [index, index * options[i]];
+    duration -= result[i][1];
+  }
+  result[i] = duration;
+
+  return result;
+}
+
+function splitTimeArrayThree(time, options) {
+  var duration = time % options[0];
+  var i = 1, l = options.length;
+  var result = Array(l + 1);
+  result[0] = time - duration;
+  var index;
+
+  for (; i < l; i++) {
+    index = ~~(duration / options[i]);
+    result[i] = [index, index * options[i]];
+    duration -= result[i][1];
+  }
+  result[i] = duration;
 
   return result;
 }
