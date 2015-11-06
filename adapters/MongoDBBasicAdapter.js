@@ -30,9 +30,6 @@ class MongoDBBasicAdapter extends Adapter {
   createTable() {
     return null;
   }
-
-  // Clean up and delete database.
-  destroy() {}
 }
 
 module.exports = MongoDBBasicAdapter;

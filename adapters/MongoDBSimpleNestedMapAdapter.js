@@ -98,9 +98,6 @@ class MongoDBSimpleNestedMapAdapter extends Adapter {
         }
       });
   }
-
-  // Clean up and delete database.
-  destroy() {}
 }
 
 module.exports = MongoDBSimpleNestedMapAdapter;
