@@ -51,6 +51,7 @@ class MongoDBSimpleNestedMapAdapter extends Adapter {
     return this[promiseName];
   }
 
+  // The thread who created the collection should also create the indexes.
   getParameterCollection(collectionName) {
     if (this.collections[collectionName]) {
       return Promise.resolve(this.collections[collectionName]);
@@ -81,8 +82,21 @@ class MongoDBSimpleNestedMapAdapter extends Adapter {
     });
   }
 
-  createTable() {
-    return null;
+  createTable(collectionName) {
+    console.log(`Creating collection: ${collectionName}`);
+
+    return this.db.createCollection(collectionName)
+      .then((collection) => {
+        this.collections[collectionName] = collection;
+
+        if (this.model.indexes) {
+          var indexes = this.model.indexes();
+
+          console.log('Creating indexes');
+
+          return Promise.all(_.map(indexes, (index) => collection.createIndex(index)));
+        }
+      });
   }
 
   // Clean up and delete database.
