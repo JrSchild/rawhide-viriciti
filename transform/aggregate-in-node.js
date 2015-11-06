@@ -61,52 +61,45 @@ function start(db) {
         });
       }
 
+      var standard = {
+        sum: 0,
+        count: 0,
+        min: null,
+        max: null
+      };
+
       // Accumulate data for easier processing/querying and
       // make sure the final arrays are sorted.
       _.each(documents, (doc) => {
-        var hrSum = 0, hrCount = 0, hrMin = null, hrMax = null;
 
+        _.merge(doc, standard);
         doc.values.forEach((minutes) => {
-          var minSum = 0, minCount = 0, minMin = null, minMax = null;
 
+          _.merge(minutes, standard);
           minutes.values.forEach((seconds) => {
 
             // Add some sorting obscurity.
             seconds.values = seconds.values.sort((a, b) => a.m > b.m ? 1 : a.m < b.m ? -1 : 0);
 
-            var secSum = 0, secCount = 0, secMin = null, secMax = null;
-            seconds.values.forEach((d) => {
-              secSum += (d.v || 0);
-              secCount++;
-              secMin = secMin === null ? d.v : Math.min(secMin, d.v);
-              secMax = secMax === null ? d.v : Math.max(secMax, d.v);
+            _.merge(seconds, standard);
+            seconds.values.forEach((milliseconds) => {
+              seconds.sum += (milliseconds.v || 0);
+              seconds.count++;
+              seconds.min = seconds.min === null ? milliseconds.v : Math.min(seconds.min, milliseconds.v);
+              seconds.max = seconds.max === null ? milliseconds.v : Math.max(seconds.max, milliseconds.v);
             });
-            seconds.sum = secSum;
-            seconds.count = secCount;
-            seconds.min = secMin;
-            seconds.max = secMax;
 
-            minSum += seconds.sum;
-            minCount += seconds.count;
-            minMin = minMin === null ? secMin : Math.min(minMin, secMin);
-            minMax = minMax === null ? secMax : Math.max(minMax, secMax);
+            minutes.sum += seconds.sum;
+            minutes.count += seconds.count;
+            minutes.min = minutes.min === null ? seconds.min : Math.min(minutes.min, seconds.min);
+            minutes.max = minutes.max === null ? seconds.max : Math.max(minutes.max, seconds.max);
           });
 
-          minutes.sum = minSum;
-          minutes.count = minCount;
-          minutes.min = minMin;
-          minutes.max = minMax;
-
-          hrSum += minutes.sum;
-          hrCount += minutes.count;
-          hrMin = hrMin === null ? minutes.min : Math.min(hrMin, minutes.min);
-          hrMax = hrMax === null ? minutes.max : Math.max(hrMax, minutes.max);
+          doc.sum += minutes.sum;
+          doc.count += minutes.count;
+          doc.min = doc.min === null ? minutes.min : Math.min(doc.min, minutes.min);
+          doc.max = doc.max === null ? minutes.max : Math.max(doc.max, minutes.max);
         });
-
-        doc.sum = hrSum;
-        doc.count = hrCount;
-        doc.min = hrMin;
-        doc.max = hrMax;
       });
 
       console.log(`Aggregated data in ${Date.now() - start}ms.`);
