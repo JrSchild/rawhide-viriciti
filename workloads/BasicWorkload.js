@@ -1,19 +1,17 @@
 'use strict'
 
 var Workload = require('rawhide/core/Workload');
-var _ = require('lodash');
-
-// Stack is faster than heap.
-var value = 0;
-var multiply;
-var current;
 
 class BasicWorkload extends Workload {
 
   constructor(parameters) {
     super(parameters);
-    current = parameters.start + parameters.id;
-    multiply = parameters.thread.multiply
+
+    // Start time should be at the beginning of the hour so it won't overlap into
+    // the next hour during a test. That would result in inconsistent results.
+    this.time = (parameters.start - (parameters.start % 3600000)) + parameters.id;
+    this.multiply = parameters.thread.multiply;
+    this.value = 0;
   }
 
   load(done) {
@@ -22,8 +20,8 @@ class BasicWorkload extends Workload {
 
   WRITE(done) {
     this.model.WRITE({
-      t: (current += multiply),
-      v: value++
+      t: (this.time += this.multiply),
+      v: ++this.value
     }, done);
   }
 
