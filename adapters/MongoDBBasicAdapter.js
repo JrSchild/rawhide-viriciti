@@ -3,7 +3,6 @@
 var Adapter = require('rawhide/core/Adapter');
 
 class MongoDBBasicAdapter extends Adapter {
-  READ(metric) {}
 
   WRITE(data, done) {
     var start = Date.now();
