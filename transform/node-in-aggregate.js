@@ -57,7 +57,6 @@ function start(db) {
                 _id: collection._id + minutesI + secondsI + second.m,
                 v: second.v
               });
-              // console.log(second);
             })
           });
         });
