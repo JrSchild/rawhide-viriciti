@@ -72,33 +72,37 @@ function start(db) {
       // make sure the final arrays are sorted.
       _.each(documents, (doc) => {
 
-        _.merge(doc, standard);
-        doc.values.forEach((minutes) => {
+        // _.merge(doc, standard);
+        doc.values.forEach((minutes, minutesI) => {
+          // minutes.i = minutesI;
+          // minutes.d = minutesI * options[0][1];
 
-          _.merge(minutes, standard);
-          minutes.values.forEach((seconds) => {
+          // _.merge(minutes, standard);
+          minutes.values.forEach((seconds, secondsI) => {
+            // seconds.i = secondsI;
+            // seconds.d = secondsI * options[1][1];
 
             // Add some sorting obscurity.
             seconds.values = seconds.values.sort((a, b) => a.m > b.m ? 1 : a.m < b.m ? -1 : 0);
 
-            _.merge(seconds, standard);
+            // _.merge(seconds, standard);
             seconds.values.forEach((milliseconds) => {
-              seconds.sum += (milliseconds.v || 0);
-              seconds.count++;
-              seconds.min = seconds.min === null ? milliseconds.v : Math.min(seconds.min, milliseconds.v);
-              seconds.max = seconds.max === null ? milliseconds.v : Math.max(seconds.max, milliseconds.v);
+              // seconds.sum += (milliseconds.v || 0);
+              // seconds.count++;
+              // seconds.min = seconds.min === null ? milliseconds.v : Math.min(seconds.min, milliseconds.v);
+              // seconds.max = seconds.max === null ? milliseconds.v : Math.max(seconds.max, milliseconds.v);
             });
 
-            minutes.sum += seconds.sum;
-            minutes.count += seconds.count;
-            minutes.min = minutes.min === null ? seconds.min : Math.min(minutes.min, seconds.min);
-            minutes.max = minutes.max === null ? seconds.max : Math.max(minutes.max, seconds.max);
+            // minutes.sum += seconds.sum;
+            // minutes.count += seconds.count;
+            // minutes.min = minutes.min === null ? seconds.min : Math.min(minutes.min, seconds.min);
+            // minutes.max = minutes.max === null ? seconds.max : Math.max(minutes.max, seconds.max);
           });
 
-          doc.sum += minutes.sum;
-          doc.count += minutes.count;
-          doc.min = doc.min === null ? minutes.min : Math.min(doc.min, minutes.min);
-          doc.max = doc.max === null ? minutes.max : Math.max(doc.max, minutes.max);
+          // doc.sum += minutes.sum;
+          // doc.count += minutes.count;
+          // doc.min = doc.min === null ? minutes.min : Math.min(doc.min, minutes.min);
+          // doc.max = doc.max === null ? minutes.max : Math.max(doc.max, minutes.max);
         });
       });
 
