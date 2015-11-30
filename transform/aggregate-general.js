@@ -16,7 +16,7 @@ const variations = {
 };
 
 // Parameters
-const options = [3600000, 120000, 5000];
+const format = [3600000, 120000, 5000];
 const type = variations.d;
 const inputCollection = 'table';
 const outputCollection = 'aggregated-in-node';
@@ -61,20 +61,20 @@ function start(db) {
       console.log(`Found all in:        ${stats.find}ms`);
 
       for (var i = 0, l = result.length; i < l; i++) {
-        times = utils.splitTimeArray(result[i]._id, options);
+        times = utils.splitTimeArray(result[i]._id, format);
 
         if (!documents[times[0]]) {
           if (type[0] === Object) {
             documents[times[0]] = {values: {}};
           } else {
-            documents[times[0]] = utils.getDocumentModelArray(options, new type[1]);
+            documents[times[0]] = utils.getDocumentModelArray(format, new type[1]);
           }
           documents[times[0]]._id = times[0];
-          documents[times[0]].options = options;
+          documents[times[0]].format = format;
         }
 
         let current = documents[times[0]].values;
-        let y = 1, q = options.length;
+        let y = 1, q = format.length;
         let M = type[0] === Object ? 1 : 0;
         for (; y < q; y++) {
           if (type[0] === Object) {
@@ -99,7 +99,7 @@ function start(db) {
           }
 
           // Find the corresponding letter.
-          var variation = Object.keys(variations).find((elem) => {
+          stats.variation = Object.keys(variations).find((elem) => {
             return variations[elem] === type;
           }, null);
 
