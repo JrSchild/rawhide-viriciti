@@ -3,9 +3,10 @@
 /**
  * A quick test to see how fast it is to process data at hindsight.
  */
-var Adapter = require('rawhide/core/Adapter');
-var utils = require('../lib/utils');
+var fs = require('fs');
+var path = require('path');
 var _ = require('lodash');
+var utils = require('../lib/utils');
 var MongoClient = require('mongodb').MongoClient;
 const settings = require('../database.json').MongoDB;
 const variations = {
@@ -14,9 +15,19 @@ const variations = {
   c: [Array, Object],
   d: [Array, Array]
 };
+const formats = [
+  [60000, 1000],
+  [3600000, 60000, 1000],
+  [3600000, 120000, 5000],
+  [3600000, 180000, 10000],
+  [3600000, 240000, 15000],
+  [3600000, 360000, 36000, 1000],
+  [3600000, 300000, 25000, 1000],
+  [3600000, 300000, 20000, 1000]
+];
 
 // Parameters
-const format = [3600000, 120000, 5000];
+const format = formats[2];
 const type = variations.d;
 const inputCollection = 'table';
 const outputCollection = 'aggregated-in-node';
@@ -44,7 +55,7 @@ function start(db) {
     find: start,
     aggregate: null,
     insert: null
-  }
+  };
   var documents = {};
 
   console.log('Start retrieving everything');
@@ -110,14 +121,28 @@ function start(db) {
           console.log(`Aggregated ${result.length} documents into ${Object.keys(documents).length} docs in ${stats.time}ms.`);
 
           // Get stats from DB
+          db.collection(outputCollection).stats(function (err, collStats) {
+            if (err) throw err;
 
-          // Join stats with metrics from this script
+            // Join stats with metrics from this script
+            _.merge(stats, _.pick(collStats, 'count', 'size', 'avgObjSize', 'storageSize', 'totalIndexSize'));
+            stats.type = type.map((a) => a());
+            stats.format = format;
+            stats.formatIndex = formats.findIndex((elem) => elem === format) + 1;
 
-          // Write 'em away
+            var resultPath = path.resolve(process.cwd(), '../results');
+            try {
+              fs.mkdirSync(resultPath);
+            } catch (error) {
+              if (error.code !== 'EEXIST') throw error;
+            }
 
-          console.log(`Done, inserted in: ${Date.now() - start}ms.`);
-          console.log(`Aggregated ${result.length} documents into ${Object.keys(documents).length} docs in ${Date.now() - begin}ms.`);
-          process.exit();
+            // Write 'em away
+            resultPath += `/Model-2.${stats.formatIndex}.${stats.variation}.${stats.format.join('|')}.json`;
+            fs.writeFileSync(resultPath, JSON.stringify(stats, undefined, 2));
+
+            process.exit();
+          });
         });
     })
     .catch(console.error);
