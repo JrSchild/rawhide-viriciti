@@ -38,8 +38,13 @@ MongoClient.connect(`mongodb://${settings.host}:${settings.port}/${settings.data
 });
 
 function start(db) {
-  var begin = Date.now();
-  var start = begin;
+  var start = Date.now();
+  var stats = {
+    time: start,
+    find: start,
+    aggregate: null,
+    insert: null
+  }
   var documents = {};
 
   console.log('Start retrieving everything');
@@ -50,12 +55,10 @@ function start(db) {
     .then((result) => {
       var times, current;
 
-      console.log(`Found all in ${Date.now() - start}ms.`);
-      console.log(`First record: ${JSON.stringify(result[0])}`);
-      console.log(`Last record: ${JSON.stringify(result[result.length - 1])}`);
-
-      console.log('Start aggregating');
+      stats.find = Date.now() - stats.find;
       start = Date.now();
+      stats.aggregate = start;
+      console.log(`Found all in:        ${stats.find}ms`);
 
       for (var i = 0, l = result.length; i < l; i++) {
         times = utils.splitTimeArray(result[i]._id, options);
@@ -84,10 +87,11 @@ function start(db) {
         current[times[q]] = result[i].v;
       }
 
-      console.log(`Aggregated data in ${Date.now() - start}ms.`);
-
-      console.log('Inserting documents.');
+      stats.aggregate = Date.now() - stats.aggregate;
       start = Date.now();
+      stats.insert = Date.now();
+      console.log(`Aggregated data in:  ${stats.aggregate}ms`);
+
       return db.collection(outputCollection)
         .insert(_.values(documents), (err) => {
           if (err) {
@@ -98,6 +102,12 @@ function start(db) {
           var variation = Object.keys(variations).find((elem) => {
             return variations[elem] === type;
           }, null);
+
+          var end = Date.now();
+          stats.insert = end - stats.insert;
+          stats.time = end - stats.time;
+          console.log(`Inserted in:         ${stats.insert}ms`);
+          console.log(`Aggregated ${result.length} documents into ${Object.keys(documents).length} docs in ${stats.time}ms.`);
 
           // Get stats from DB
 
