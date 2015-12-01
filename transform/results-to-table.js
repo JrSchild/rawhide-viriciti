@@ -13,9 +13,9 @@ var rows = Object.keys(results).map((name) => {
   result.size = bytes(result.size);
   result.avgObjSize = bytes(result.avgObjSize);
 
-  return [name].concat(_.values(_.pick(result, 'time', 'count', 'size', 'totalIndexSize', 'speed')));
-}).sort((a, b) => b[5] - a[5]);
+  return [name].concat(_.values(_.pick(result, 'time', 'aggregate', 'insert', 'speed')));
+}).sort((a, b) => a[1] - b[1]);
 
-rows.unshift(['name', 'time (sec)', 'count', 'size', 'indexSize', 'speed (%)']);
+rows.unshift(['name', 'total time (ms)', 'transform time (ms)', 'insert time (ms)', 'speed (%)']);
 rows = rows.map((row) => row.join(';')).join('\n');
 fs.writeFileSync('../results/results.aggregate.csv', rows);
