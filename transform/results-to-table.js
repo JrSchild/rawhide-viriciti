@@ -9,7 +9,7 @@ var min = _.min(results, (result) => result.time).time;
 var rows = Object.keys(results).map((name) => {
   var result = results[name];
 
-  result.speed = Math.round(result.time / 6518 * 1000) / 10;
+  result.speed = Math.round(result.time / min * 1000) / 10;
   result.size = bytes(result.size);
   result.avgObjSize = bytes(result.avgObjSize);
 
