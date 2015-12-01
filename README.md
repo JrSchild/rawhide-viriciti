@@ -7,5 +7,7 @@ Adjust the `parameters.json` file to your liking. `npm install -g git://github.c
 ### Transform
 The transform directory runs different tests to see how fast it is to process data after it is inserted.
 
+To run all the different variations run the shell script inside the transform folder.
+
 ### TODO:
 utils.splitTime options should start with the biggest interval (hour) and also define the last interval (minutes).
