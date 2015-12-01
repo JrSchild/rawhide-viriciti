@@ -8,10 +8,12 @@ var min = _.min(results, (result) => result.time).time;
 
 var rows = Object.keys(results).map((name) => {
   var result = results[name];
-  var speed = Math.round(result.time / 6518 * 1000) / 10;
+
+  result.speed = Math.round(result.time / 6518 * 1000) / 10;
   result.size = bytes(result.size);
   result.avgObjSize = bytes(result.avgObjSize);
-  return [name].concat(_.values(_.pick(result, 'time', 'size', 'avgObjSize', 'totalIndexSize')), speed);
+
+  return [name].concat(_.values(_.pick(result, 'time', 'size', 'avgObjSize', 'totalIndexSize', 'speed')));
 });
 
 rows.unshift(['name', 'time (sec)', 'size', 'avgObjSize', 'indexSize', 'speed (%)']);
