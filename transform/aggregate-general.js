@@ -8,6 +8,20 @@ var path = require('path');
 var _ = require('lodash');
 var utils = require('../lib/utils');
 var MongoClient = require('mongodb').MongoClient;
+var Statistics = require('rawhide/core/Statistics');
+var argv = require('yargs')
+  .default('variation', 'a')
+  .default('format', 3)
+  .check(function (argv) {
+    if (!/^[abcd]{1}$/.test(argv.variation)) {
+      throw 'Only variation a,b,c or d allowed.'
+    }
+    if (1 > argv.format || argv.format > 8) {
+      throw 'Format must be between 1 and 8.'
+    }
+    return true;
+  })
+  .argv;
 const settings = require('../database.json').MongoDB;
 const variations = {
   a: [Object, Object],
@@ -27,8 +41,8 @@ const formats = [
 ];
 
 // Parameters
-const format = formats[2];
-const type = variations.d;
+const format = formats[argv.format - 1];
+const type = variations[argv.variation];
 const inputCollection = 'table';
 const outputCollection = 'aggregated-in-node';
 
@@ -109,11 +123,6 @@ function start(db) {
             throw err;
           }
 
-          // Find the corresponding letter.
-          stats.variation = Object.keys(variations).find((elem) => {
-            return variations[elem] === type;
-          }, null);
-
           var end = Date.now();
           stats.insert = end - stats.insert;
           stats.time = end - stats.time;
@@ -126,20 +135,22 @@ function start(db) {
 
             // Join stats with metrics from this script
             _.merge(stats, _.pick(collStats, 'count', 'size', 'avgObjSize', 'storageSize', 'totalIndexSize'));
+
             stats.type = type.map((a) => a());
             stats.format = format;
-            stats.formatIndex = formats.findIndex((elem) => elem === format) + 1;
+            stats.formatIndex = argv.format;
+            stats.variation = argv.variation;
 
             var resultPath = path.resolve(process.cwd(), '../results');
-            try {
-              fs.mkdirSync(resultPath);
-            } catch (error) {
-              if (error.code !== 'EEXIST') throw error;
-            }
+
+            Statistics.ensureDirSync(resultPath);
+
+            resultPath += `/results.aggregate.json`;
+            var results = Statistics.requireOrCreate(resultPath);
+            results[`Model-2.${stats.formatIndex}.${stats.variation}`] = stats;
 
             // Write 'em away
-            resultPath += `/Model-2.${stats.formatIndex}.${stats.variation}.${stats.format.join('|')}.json`;
-            fs.writeFileSync(resultPath, JSON.stringify(stats, undefined, 2));
+            fs.writeFileSync(resultPath, JSON.stringify(results, undefined, 2));
 
             process.exit();
           });
