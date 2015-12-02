@@ -13,10 +13,10 @@ var inputCollection = 'table';
 if (cluster.isMaster) {
   async.timesSeries(times, (i, next) => {
     var child = cluster.fork();
-    child.on('message', (data) => {
-      console.log(`iteration ${i + 1}: ${data}`);
-      next(null, data);
-    });
+
+    child.on('message', (data) => next(null, data));
+    child.on('message', (data) => console.log(`iteration ${i + 1}: ${data}`));
+    child.on('error', (err) => next(err));
   }, (err, result) => {
     if (err) throw err;
 
