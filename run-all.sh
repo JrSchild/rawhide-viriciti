@@ -1,0 +1,34 @@
+#!/bin/sh
+
+rawhide run -s --format 1 --variation a && echo 'finished 1-a' && sleep 15
+rawhide run -s --format 1 --variation b && echo 'finished 1-b' && sleep 15
+rawhide run -s --format 1 --variation c && echo 'finished 1-c' && sleep 15
+rawhide run -s --format 1 --variation d && echo 'finished 1-d' && sleep 15
+rawhide run -s --format 2 --variation a && echo 'finished 2-a' && sleep 15
+rawhide run -s --format 2 --variation b && echo 'finished 2-b' && sleep 15
+rawhide run -s --format 2 --variation c && echo 'finished 2-c' && sleep 15
+rawhide run -s --format 2 --variation d && echo 'finished 2-d' && sleep 15
+rawhide run -s --format 3 --variation a && echo 'finished 3-a' && sleep 15
+rawhide run -s --format 3 --variation b && echo 'finished 3-b' && sleep 15
+rawhide run -s --format 3 --variation c && echo 'finished 3-c' && sleep 15
+rawhide run -s --format 3 --variation d && echo 'finished 3-d' && sleep 15
+rawhide run -s --format 4 --variation a && echo 'finished 4-a' && sleep 15
+rawhide run -s --format 4 --variation b && echo 'finished 4-b' && sleep 15
+rawhide run -s --format 4 --variation c && echo 'finished 4-c' && sleep 15
+rawhide run -s --format 4 --variation d && echo 'finished 4-d' && sleep 15
+rawhide run -s --format 5 --variation a && echo 'finished 5-a' && sleep 15
+rawhide run -s --format 5 --variation b && echo 'finished 5-b' && sleep 15
+rawhide run -s --format 5 --variation c && echo 'finished 5-c' && sleep 15
+rawhide run -s --format 5 --variation d && echo 'finished 5-d' && sleep 15
+rawhide run -s --format 6 --variation a && echo 'finished 6-a' && sleep 15
+rawhide run -s --format 6 --variation b && echo 'finished 6-b' && sleep 15
+rawhide run -s --format 6 --variation c && echo 'finished 6-c' && sleep 15
+rawhide run -s --format 6 --variation d && echo 'finished 6-d' && sleep 15
+rawhide run -s --format 7 --variation a && echo 'finished 7-a' && sleep 15
+rawhide run -s --format 7 --variation b && echo 'finished 7-b' && sleep 15
+rawhide run -s --format 7 --variation c && echo 'finished 7-c' && sleep 15
+rawhide run -s --format 7 --variation d && echo 'finished 7-d' && sleep 15
+rawhide run -s --format 8 --variation a && echo 'finished 8-a' && sleep 15
+rawhide run -s --format 8 --variation b && echo 'finished 8-b' && sleep 15
+rawhide run -s --format 8 --variation c && echo 'finished 8-c' && sleep 15
+rawhide run -s --format 8 --variation d && echo 'finished 8-d' && sleep 15
