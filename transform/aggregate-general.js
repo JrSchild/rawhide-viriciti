@@ -40,6 +40,9 @@ const formats = [
   [3600000, 300000, 20000, 1000]
 ];
 
+// Set to falsy value to ignore.
+const FETCH_TIME = 5951;
+
 // Parameters
 const format = formats[argv.format - 1];
 const type = variations[argv.variation];
@@ -80,7 +83,7 @@ function start(db) {
     .then((result) => {
       var times, current;
 
-      stats.find = Date.now() - stats.find;
+      stats.find = FETCH_TIME || Date.now() - stats.find;
       start = Date.now();
       stats.aggregate = start;
       console.log(`Found all in:        ${stats.find}ms`);
