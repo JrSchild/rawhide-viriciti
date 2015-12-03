@@ -1,6 +1,7 @@
 'use strict'
 
 var Workload = require('rawhide/core/Workload');
+var multiplier = 100;
 
 class BasicWorkload extends Workload {
 
@@ -9,7 +10,7 @@ class BasicWorkload extends Workload {
 
     // Start time should be at the beginning of the hour so it won't overlap into
     // the next hour during a test. That would result in inconsistent results.
-    this.time = (parameters.start - (parameters.start % 3600000)) + parameters.id;
+    this.time = (parameters.start - (parameters.start % 3600000)) + (parameters.id * multiplier);
     this.multiply = parameters.thread.multiply;
     this.value = 0;
   }
@@ -20,9 +21,10 @@ class BasicWorkload extends Workload {
 
   WRITE(done) {
     this.model.WRITE({
-      t: (this.time += this.multiply),
+      t: this.time,
       v: ++this.value
     }, done);
+    this.time += (this.multiply * multiplier);
   }
 
   READ(done) {
