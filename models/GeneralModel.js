@@ -47,16 +47,29 @@ class GeneralModel extends BaseModel {
     var query = {
       _id: times[0]
     };
-    var update = {$set: {}};
+    var update = {};
     var updateStr = 'values.';
 
     var i = 1, l = format.length;
     for (; i < l; i++) {
       updateStr += `${times[i][B]}.values.`;
     }
-    updateStr += `${times[l]}`;
 
-    update.$set[updateStr] = data.v;
+    if (variation[1] === Object) {
+      updateStr += `${times[l]}`;
+      update.$set = {
+        [updateStr]: data.v
+      }
+    } else {
+      // Cut off the final dot of the string.
+      updateStr = updateStr.substring(0, updateStr.length - 1);
+      update.$push = {
+        [updateStr]: {
+          t: times[l],
+          v: data.v
+        }
+      };
+    }
 
     this.adapter.UPDATE(this.parameters.thread.tableName, query, update, done);
   }
