@@ -5,7 +5,9 @@
  */
 var fs = require('fs');
 var path = require('path');
+var cluster = require('cluster');
 var _ = require('lodash');
+var async = require('async');
 var utils = require('../lib/utils');
 var MongoClient = require('mongodb').MongoClient;
 var Statistics = require('rawhide/core/Statistics');
@@ -42,6 +44,7 @@ const formats = [
 
 // Set to falsy value to ignore.
 const FETCH_TIME = 5951;
+const TEST_TIMES = 5;
 
 // Parameters
 const format = formats[argv.format - 1];
@@ -52,6 +55,47 @@ const outputCollection = 'aggregated-in-node';
 const M = type[0] === Object ? 1 : 0;
 const IS_ALL_OBJECT = type[0] === Object && type[1] === Object;
 const FORMAT_LENGTH = format.length;
+
+if (cluster.isMaster) {
+  var child;
+  var resultPath = path.resolve(process.cwd(), '../results');
+  Statistics.ensureDirSync(resultPath);
+  resultPath += `/results.aggregate.json`;
+
+  var results = Statistics.requireOrCreate(resultPath);
+
+  return async.timesSeries(TEST_TIMES, (i, next) => {
+    child = cluster.fork();
+    child.on('message', (data) => setTimeout(() => next(null, data), 500));
+    child.on('error', (err) => next(err));
+  }, (err, stats) => {
+    if (err) throw err;
+
+    stats[0].time = [stats[0].time];
+    stats[0].find = [stats[0].find];
+    stats[0].aggregate = [stats[0].aggregate];
+    stats[0].insert = [stats[0].insert];
+
+    stats = stats.reduce((prev, curr) => {
+      prev.time.push(curr.time);
+      prev.find.push(curr.find);
+      prev.aggregate.push(curr.aggregate);
+      prev.insert.push(curr.insert);
+
+      return prev;
+    });
+
+    stats.time = Math.round(_.sum(stats.time) / TEST_TIMES);
+    stats.find = Math.round(_.sum(stats.find) / TEST_TIMES);
+    stats.aggregate = Math.round(_.sum(stats.aggregate) / TEST_TIMES);
+    stats.insert = Math.round(_.sum(stats.insert) / TEST_TIMES);
+
+    results[`Model-2.${stats.formatIndex}.${stats.variation}`] = stats;
+    fs.writeFileSync(resultPath, JSON.stringify(results, undefined, 2));
+
+    process.exit();
+  });
+}
 
 MongoClient.connect(`mongodb://${settings.host}:${settings.port}/${settings.database}`, function (err, db) {
   if (err) throw err;
@@ -153,17 +197,7 @@ function start(db) {
             stats.formatIndex = argv.format;
             stats.variation = argv.variation;
 
-            var resultPath = path.resolve(process.cwd(), '../results');
-
-            Statistics.ensureDirSync(resultPath);
-
-            resultPath += `/results.aggregate.json`;
-            var results = Statistics.requireOrCreate(resultPath);
-            results[`Model-2.${stats.formatIndex}.${stats.variation}`] = stats;
-
-            // Write 'em away
-            fs.writeFileSync(resultPath, JSON.stringify(results, undefined, 2));
-
+            process.send(stats);
             process.exit();
           });
         });
