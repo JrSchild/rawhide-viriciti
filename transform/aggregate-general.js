@@ -49,6 +49,10 @@ const type = variations[argv.variation];
 const inputCollection = 'table';
 const outputCollection = 'aggregated-in-node';
 
+const M = type[0] === Object ? 1 : 0;
+const IS_ALL_OBJECT = type[0] === Object && type[1] === Object;
+const FORMAT_LENGTH = format.length;
+
 MongoClient.connect(`mongodb://${settings.host}:${settings.port}/${settings.database}`, function (err, db) {
   if (err) throw err;
 
@@ -92,27 +96,32 @@ function start(db) {
         times = utils.splitTimeArray(result[i]._id, format);
 
         if (!documents[times[0]]) {
-          if (type[0] === Object) {
+          if (IS_ALL_OBJECT) {
             documents[times[0]] = {values: {}};
           } else {
-            documents[times[0]] = utils.getDocumentModelArray(format, new type[1]);
+            documents[times[0]] = utils.makeValuesArray(format, type);
           }
           documents[times[0]]._id = times[0];
           documents[times[0]].format = format;
         }
 
         let current = documents[times[0]].values;
-        let y = 1, q = format.length;
-        let M = type[0] === Object ? 1 : 0;
-        for (; y < q; y++) {
-          if (type[0] === Object) {
-            current[times[y][M]] = current[times[y][M]] || {values: {}};
-            current = current[times[y][M]].values;
-          } else {
-            current = current[times[y][M]].values || current[times[y][M]];
+        let y = 1;
+        for (; y < FORMAT_LENGTH; y++) {
+          if (IS_ALL_OBJECT && !current[times[y][M]]) {
+            current[times[y][M]] = {values: {}};
           }
+          current = current[times[y][M]].values;
         }
-        current[times[q]] = result[i].v;
+
+        if (type[1] === Object) {
+          current[times[FORMAT_LENGTH]] = result[i].v;
+        } else {
+          current.push({
+            t: times[FORMAT_LENGTH],
+            v: result[i].v
+          });
+        }
       }
 
       stats.aggregate = Date.now() - stats.aggregate;
@@ -128,7 +137,7 @@ function start(db) {
 
           var end = Date.now();
           stats.insert = end - stats.insert;
-          stats.time = end - stats.time;
+          stats.time = stats.find + stats.insert + stats.aggregate;
           console.log(`Inserted in:         ${stats.insert}ms`);
           console.log(`Aggregated ${result.length} documents into ${Object.keys(documents).length} docs in ${stats.time}ms.`);
 
