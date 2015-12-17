@@ -65,6 +65,7 @@ if (cluster.isMaster) {
   var results = Statistics.requireOrCreate(resultPath);
 
   return async.timesSeries(TEST_TIMES, (i, next) => {
+    console.log('iteration', i);
     child = cluster.fork();
     child.on('message', (data) => setTimeout(() => next(null, data), 500));
     child.on('error', (err) => next(err));
@@ -92,6 +93,8 @@ if (cluster.isMaster) {
 
     results[`Model-2.${stats.formatIndex}.${stats.variation}`] = stats;
     fs.writeFileSync(resultPath, JSON.stringify(results, undefined, 2));
+
+    console.log('done with', `Model-2.${stats.formatIndex}.${stats.variation}`);
 
     process.exit();
   });
