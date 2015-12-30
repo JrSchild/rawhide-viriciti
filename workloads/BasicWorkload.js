@@ -1,7 +1,11 @@
 'use strict'
 
+var argv = require('yargs')
+  .default('interval', 100)
+  .argv;
+
 var Workload = require('rawhide/core/Workload');
-var multiplier = 100;
+var multiplier = argv.interval;
 
 class BasicWorkload extends Workload {
 
