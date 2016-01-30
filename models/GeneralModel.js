@@ -9,8 +9,8 @@ var argv = require('yargs')
     if (!/^[abcd]{1}$/.test(argv.variation)) {
       throw 'Only variation a,b,c or d allowed.'
     }
-    if (1 > argv.format || argv.format > 13) {
-      throw 'Format must be between 1 and 13.'
+    if (1 > argv.format || argv.format > 15) {
+      throw 'Format must be between 1 and 15.'
     }
     return true;
   })
@@ -39,7 +39,9 @@ const formats = [
   [3600000, 60000],
   [3600000, 60000, 2000],
   [3600000, 60000, 5000],
-  [3600000, 60000, 10000]
+  [3600000, 60000, 10000],
+  [7200000, 120000, 10000],
+  [14400000, 240000, 20000]
 ];
 
 const format = formats[argv.format - 1];
